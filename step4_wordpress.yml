@@ -1,0 +1,4 @@
+---
+- hosts: wordpress-servers
+  roles:
+    - common
