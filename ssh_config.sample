@@ -1,0 +1,8 @@
+Host *
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
+
+Host HostName
+  HostName xx.xxx.xx.xxx
+  User ec2-user
+  IdentityFile PATH_TO_KEY_FILE
