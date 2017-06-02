@@ -1,0 +1,31 @@
+---
+- name: mysql56-server installed
+  yum:
+    name: mysql56-server
+- name: "/etc/my.cnf"
+  template:
+    src: my.cnf
+    dest: /etc/my.cnf
+    backup: yes
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - restart mysqld service
+- name: mysqld service started
+  service:
+    name: mysqld
+    state: started
+    enabled: yes
+
+- name: "install MySQL-python27 for DB module"
+  yum:
+    name: MySQL-python27
+- name: "DB master user"
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: '*.*:ALL'
+- name: "Database"
+  mysql_db:
+    name: "{{ db_name }}"

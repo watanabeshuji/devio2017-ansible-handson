@@ -1,0 +1,4 @@
+---
+db_user: master
+db_password: Pass1234
+db_name: wp
