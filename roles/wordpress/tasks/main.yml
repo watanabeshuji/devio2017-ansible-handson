@@ -1,0 +1,47 @@
+---
+- name: php70 installed
+  yum:
+    name: php70,php70-mysqlnd
+
+- name: "check {{ wp_path }}' if exist"
+  stat:
+    path: "{{ wp_path }}"
+  register: stat_wp_home
+- name: download wordpress
+  unarchive:
+    src: "{{ wp_download_url }}"
+    dest: /opt
+    remote_src: yes
+    owner: apache
+    group: apache
+  when: stat_wp_home.stat.exists == false
+
+- name: "check {{ wp_path }}/wp-config.php' if exist"
+  stat:
+    path: "{{ wp_path }}/wp-config.php"
+  register: stat_wp_config
+- name: "rename {{ wp_path }}/wp-config-sample.php to {{ wp_path }}/wp-config.php"
+  shell: "mv {{ wp_path }}/wp-config-sample.php {{ wp_path }}/wp-config.php"
+  when: stat_wp_config.stat.exists == false
+
+- name: "DB_NAME: {{ wp_path }}/wp-config.php"
+  replace:
+    path: "{{ wp_path }}/wp-config.php"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+    backup: yes
+  with_items:
+    - { regexp: "^define\\('DB_NAME'.+$",     replace: "define('DB_NAME', '{{ db_name }}');"}
+    - { regexp: "^define\\('DB_USER'.+$",     replace: "define('DB_USER', '{{ db_user }}');"}
+    - { regexp: "^define\\('DB_PASSWORD'.+$", replace: "define('DB_PASSWORD', '{{ db_password }}');"}
+    - { regexp: "^define\\('DB_HOST'.+$",     replace: "define('DB_HOST', 'localhost');"}
+
+- name: "/etc/httpd/conf.d/wordpress.conf"
+  template:
+    src: wordpress.conf
+    dest: /etc/httpd/conf.d/wordpress.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - restart apache24 service
