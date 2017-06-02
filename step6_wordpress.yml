@@ -1,0 +1,6 @@
+---
+- hosts: wordpress-servers
+  roles:
+    - common
+    - mysql56-server
+    - apache24
